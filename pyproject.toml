@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "NSM-DEBUG_MCP"
 version = "0.6.0"
 description = "Visual Studio Code focused MCP server for network system management and serial console debugging"
-readme = "markdown/NSM-DEBUG_MCP_Guide_EN.md"
+readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 authors = [
