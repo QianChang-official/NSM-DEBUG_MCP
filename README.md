@@ -35,3 +35,17 @@ Device output → Copilot Chat
 
 ## Features
 
+| Category | Capability |
+|----------|-----------|
+| **Session Automation** | Auto login (username / password / enable), paging disable |
+| **CLI Tools** | 20+ pre-defined commands: show, OSPF, BGP, IS-IS, VLAN, DHCP, IPv6… |
+| **BootLoader Reset** | Automated factory reset for routers, switches, ACs, gateways |
+| **Control Keys** | Raw Ctrl+C / Ctrl+B / Ctrl+Q injection over serial |
+| **Win32 Fallback** | CH340 USB-serial workaround via native Win32 API |
+| **YAML Profiles** | One config file per device — swap targets in seconds |
+
+## Quick Start
+
+```bash
+# 1. Clone
+git clone https://github.com/QianChang-official/NSM-DEBUG_MCP.git
