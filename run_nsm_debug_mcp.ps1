@@ -1,5 +1,5 @@
 param(
-    [string]$Config = "NSM-DEBUG_MCP_R1.example.yaml"
+    [string]$Config = "NSM-DEBUG_MCP.example.yaml"
 )
 
 $ErrorActionPreference = "Stop"
