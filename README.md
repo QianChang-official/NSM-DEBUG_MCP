@@ -1,40 +1,37 @@
-# NSM-DEBUG_MCP
+<p align="center">
+  <img src="https://img.shields.io/badge/MCP-Serial_Console-blue?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="MCP Badge"/>
+  <img src="https://img.shields.io/badge/Python-≥3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows"/>
+  <img src="https://img.shields.io/github/license/QianChang-official/NSM-DEBUG_MCP?style=for-the-badge" alt="License"/>
+</p>
 
-**Network System Management — Debug MCP Server**
+<h1 align="center">NSM-DEBUG_MCP</h1>
 
-A Windows-first MCP (Model Context Protocol) server for Visual Studio Code that automates serial console interaction with network devices (Ruijie routers, switches, gateways, ACs).
+<p align="center">
+  <b>Network System Management — Debug MCP Server</b><br/>
+  A Windows-first <a href="https://modelcontextprotocol.io/">MCP</a> server for VS Code that turns serial console interactions into AI-callable tools.
+</p>
+
+<p align="center">
+  <a href="markdown/NSM-DEBUG_MCP_Guide_EN.md">📖 English Guide</a> ·
+  <a href="markdown/NSM-DEBUG_MCP_Guide_ZH.md">📖 中文教程</a> ·
+  <a href="https://github.com/QianChang-official/NSM-DEBUG_MCP/issues">🐛 Report Bug</a> ·
+  <a href="https://github.com/QianChang-official/NSM-DEBUG_MCP/issues">💡 Request Feature</a>
+</p>
+
+---
+
+## What It Does
+
+Connect a serial cable, point the server at your device, and talk to network equipment through VS Code Copilot Agent — no terminal window switching required.
+
+```
+You (Copilot Chat) → "查看 R1 路由表"
+     ↓
+NSM-DEBUG_MCP → serial console → show ip route
+     ↓
+Device output → Copilot Chat
+```
 
 ## Features
 
-- Automatic serial console login (username / password / enable)
-- CLI command execution exposed as MCP tools in VS Code Copilot Agent mode
-- BootLoader-based factory reset automation (Ctrl+C / Ctrl+B / Ctrl+Q workflows)
-- Raw control-key injection over serial
-- CH340 Win32 fallback for problematic USB-serial adapters
-- YAML-driven device profiles
-
-## Quick Start
-
-1. Open this folder as a VS Code workspace.
-2. Copy an example YAML and fill in your device credentials:
-   ```
-   cp NSM-DEBUG_MCP_R1.example.yaml my_device.yaml
-   ```
-3. Edit `.vscode/mcp.json` to point to your YAML.
-4. Run **MCP: List Servers** → start **NSM-DEBUG_MCP**.
-5. Open Copilot Chat in Agent mode and invoke the tools.
-
-## Requirements
-
-- Windows (primary target)
-- Python ≥ 3.11
-- `pyserial`, `mcp`, `pyyaml` (see `pyproject.toml`)
-
-## Documentation
-
-- [English Guide](markdown/NSM-DEBUG_MCP_Guide_EN.md)
-- [中文教程](markdown/NSM-DEBUG_MCP_Guide_ZH.md)
-
-## License
-
-[MIT](LICENSE)
