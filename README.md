@@ -159,3 +159,42 @@ python tools/run_r1_ctrlc_ctrlq_factory_reset.py
 ```
 
 ## Configuration
+
+A single YAML file controls everything. See [`NSM-DEBUG_MCP.example.yaml`](NSM-DEBUG_MCP.example.yaml) for the full reference.
+
+```yaml
+serial:
+  port: COM3          # or leave empty for auto-detect
+  baud_rate: 9600
+  bytesize: 8
+  parity: N
+  stopbits: 1
+
+session:
+  hostname: R1
+  username: admin
+  password: "your_password"
+  enable_password: "your_enable_password"
+
+commands:
+  run_cli:
+    command: "{command}"
+    need_parse: true
+    prompts:
+      - "Execute {command} on the device"
+```
+
+## VS Code Integration
+
+`.vscode/mcp.json` starts the server directly:
+
+```json
+{
+  "servers": {
+    "NSM-DEBUG_MCP": {
+      "type": "stdio",
+      "command": ".venv/Scripts/python.exe",
+      "args": ["src/nsm_debug_mcp/server.py", "NSM-DEBUG_MCP.example.yaml"]
+    }
+  }
+}
