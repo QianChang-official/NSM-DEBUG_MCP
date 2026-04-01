@@ -46,8 +46,9 @@ PROJECT_DISPLAY_NAME = "NSM-DEBUG_MCP"
 PROJECT_IDENTIFIER = "NSM-DEBUG_MCP"
 VERSION = "0.6.0"
 DEFAULT_CONFIG_FILES = (
-    "NSM-DEBUG_MCP_R2.example.yaml",
+    "NSM-DEBUG_MCP.example.yaml",
     "NSM-DEBUG_MCP_R1.example.yaml",
+    "NSM-DEBUG_MCP_R2.example.yaml",
 )
 
 server = Server(PROJECT_IDENTIFIER)
