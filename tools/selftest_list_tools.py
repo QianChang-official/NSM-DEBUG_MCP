@@ -6,7 +6,7 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PACKAGE_ROOT = os.path.dirname(SCRIPT_DIR)
 SRC_DIR = os.path.join(PACKAGE_ROOT, "src")
-CONFIG_PATH = os.path.join(PACKAGE_ROOT, "NSM-DEBUG_MCP_R1.example.yaml")
+CONFIG_PATH = os.path.join(PACKAGE_ROOT, "NSM-DEBUG_MCP.example.yaml")
 
 sys.path.insert(0, SRC_DIR)
 
