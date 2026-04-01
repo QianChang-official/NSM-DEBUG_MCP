@@ -223,3 +223,13 @@ NSM-DEBUG_MCP/
 ├── .vscode/mcp.json       # VS Code MCP launch config
 ├── NSM-DEBUG_MCP.example.yaml  # Unified example configuration
 ├── pyproject.toml         # Python package metadata
+└── LICENSE                # MIT License
+```
+
+## Acknowledgments
+
+- Based on [MCP2Serial](https://github.com/) concept
+- Refactoring and real-device adaptation assisted by GPT
+- Tested against Ruijie network equipment in production lab environment
+
+## License
