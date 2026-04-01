@@ -139,3 +139,23 @@ cp NSM-DEBUG_MCP.example.yaml my_device.yaml
 
 **Supported reset profiles:** `router` · `switch` · `ws6008` · `gateway`
 
+</details>
+
+## Standalone Tool Scripts
+
+The `tools/` directory provides standalone Python scripts for headless automation (no VS Code needed):
+
+| Script | Purpose |
+|--------|---------|
+| `selftest_list_tools.py` | Load config and print all registered MCP tool names |
+| `run_r1_ctrlc_ctrlq_factory_reset.py` | Execute full router factory reset with logging & verification |
+
+```bash
+# Run self-test
+python tools/selftest_list_tools.py
+
+# Run automated factory reset (outputs to txt/)
+python tools/run_r1_ctrlc_ctrlq_factory_reset.py
+```
+
+## Configuration
