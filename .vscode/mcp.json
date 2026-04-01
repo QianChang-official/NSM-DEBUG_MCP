@@ -5,7 +5,7 @@
       "command": ".venv/Scripts/python.exe",
       "args": [
         "src/nsm_debug_mcp/server.py",
-        "NSM-DEBUG_MCP_R1.example.yaml"
+        "NSM-DEBUG_MCP.example.yaml"
       ]
     }
   }
