@@ -49,3 +49,24 @@ Device output → Copilot Chat
 ```bash
 # 1. Clone
 git clone https://github.com/QianChang-official/NSM-DEBUG_MCP.git
+cd NSM-DEBUG_MCP
+
+# 2. Install dependencies
+pip install -e .
+
+# 3. Copy and edit the example config
+cp NSM-DEBUG_MCP.example.yaml my_device.yaml
+# Edit my_device.yaml: set hostname, credentials, COM port
+
+# 4. Open in VS Code → MCP: List Servers → Start NSM-DEBUG_MCP
+# 5. Open Copilot Chat (Agent mode) → invoke tools
+```
+
+## Available MCP Tools
+
+<details>
+<summary><b>General (click to expand)</b></summary>
+
+| Tool | Command | Description |
+|------|---------|-------------|
+| `run_cli` | `{command}` | Execute any CLI command |
