@@ -1,0 +1,270 @@
+# ============================================================
+# NSM-DEBUG_MCP — Unified Example Configuration
+# ============================================================
+# Copy this file and rename it to match your device, e.g.:
+#   NSM-DEBUG_MCP_R1.yaml   (router R1)
+#   NSM-DEBUG_MCP_S5.yaml   (switch S5)
+# Then edit serial/session sections to match your device.
+# ============================================================
+
+serial:
+  port:                      # Leave empty for auto-detect, or set e.g. COM3
+  baud_rate: 9600
+  bytesize: 8
+  parity: N
+  stopbits: 1
+  timeout: 1.0
+  read_timeout: 1.0
+  xonxoff: true
+  rtscts: false
+  dsrdtr: false
+  inter_byte_timeout: 0.1
+
+session:
+  hostname: Ruijie            # Change to your device hostname
+  username: admin
+  password: "CHANGE_ME_PASSWORD"
+  enable_password: "CHANGE_ME_PASSWORD"
+  username_prompt: "Username:"
+  password_prompt: "Password:"
+  enable_command: "enable"
+  user_prompt_suffix: ">"
+  privileged_prompt_suffix: "#"
+  line_ending: "\r\n"
+  command_timeout: 15.0
+  login_timeout: 20.0
+  paging_disable_command: "terminal length 0"
+
+# ============================================================
+# Commands Index / 命令索引
+# ============================================================
+#
+# --- General / 通用 -----------------------------------------
+#   run_cli                     Run any CLI command
+#   show_version                show version
+#   show_running_config         show running-config
+#   show_startup_config         show startup-config
+#   show_ip_interface_brief     show ip interface brief
+#   show_ip_route               show ip route
+#   show_vlan                   show vlan
+#   show_mac_address_table      show mac-address-table
+#   show_lldp_neighbors         show lldp neighbors
+#   show_lldp_neighbors_detail  show lldp neighbors detail
+#   show_ip_dhcp_binding        show ip dhcp binding
+#   show_privilege              show privilege
+#   show_flash                  dir flash:
+#   show_interfaces             show interfaces {interface}
+#   show_running_include        show running-config | include {pattern}
+#
+# --- IPv6 ---------------------------------------------------
+#   show_ipv6_interface_brief   show ipv6 interface brief
+#   show_ipv6_route             show ipv6 route
+#
+# --- Routing / 路由 ------------------------------------------
+#   show_ip_ospf_neighbor       show ip ospf neighbor
+#   show_ip_bgp_summary         show ip bgp summary
+#   show_isis_neighbors         show isis neighbors
+#   show_ip_rip_database        show ip rip database
+#
+# --- AC / Wireless ------------------------------------------
+#   show_ap_all                 show ap all
+#   show_ap_config_summary      show ap-config summary
+#
+# --- Save & Reset / 保存与重置 --------------------------------
+#   write_memory                write memory
+#   save_config                 save (alias)
+#
+# --- tools/ Script Equivalents / 工具脚本等效命令 ---------------
+#   selftest_list_tools         (MCP built-in) lists all tools
+#   auto_factory_reset          (MCP built-in) bootloader reset
+#   send_control_keys           (MCP built-in) raw key injection
+#
+# ============================================================
+
+commands:
+
+  # ========== General / 通用 ==========
+
+  run_cli:
+    command: "{command}"
+    need_parse: true
+    prompts:
+      - "在当前设备上执行命令 {command}"
+      - "执行 show ip interface brief"
+      - "执行 show running-config"
+
+  show_version:
+    command: "show version"
+    need_parse: true
+    prompts:
+      - "查看设备版本信息"
+      - "show version"
+
+  show_running_config:
+    command: "show running-config"
+    need_parse: true
+    prompts:
+      - "查看当前运行配置"
+      - "show running-config"
+
+  show_startup_config:
+    command: "show startup-config"
+    need_parse: true
+    prompts:
+      - "查看启动配置"
+      - "show startup-config"
+
+  show_ip_interface_brief:
+    command: "show ip interface brief"
+    need_parse: true
+    prompts:
+      - "查看接口摘要"
+      - "show ip interface brief"
+
+  show_ip_route:
+    command: "show ip route"
+    need_parse: true
+    prompts:
+      - "查看路由表"
+      - "show ip route"
+
+  show_vlan:
+    command: "show vlan"
+    need_parse: true
+    prompts:
+      - "查看 VLAN 配置"
+      - "show vlan"
+
+  show_mac_address_table:
+    command: "show mac-address-table"
+    need_parse: true
+    prompts:
+      - "查看 MAC 地址表"
+      - "show mac-address-table"
+
+  show_lldp_neighbors:
+    command: "show lldp neighbors"
+    need_parse: true
+    prompts:
+      - "查看 LLDP 邻居"
+      - "show lldp neighbors"
+
+  show_lldp_neighbors_detail:
+    command: "show lldp neighbors detail"
+    need_parse: true
+    prompts:
+      - "查看 LLDP 邻居详情"
+      - "show lldp neighbors detail"
+
+  show_ip_dhcp_binding:
+    command: "show ip dhcp binding"
+    need_parse: true
+    prompts:
+      - "查看 DHCP 分配记录"
+      - "show ip dhcp binding"
+
+  show_privilege:
+    command: "show privilege"
+    need_parse: true
+    prompts:
+      - "查看当前权限级别"
+      - "show privilege"
+
+  show_flash:
+    command: "dir flash:"
+    need_parse: true
+    prompts:
+      - "查看 Flash 目录"
+      - "dir flash:"
+
+  show_interfaces:
+    command: "show interfaces {interface}"
+    need_parse: true
+    prompts:
+      - "查看接口 {interface} 详细信息"
+      - "show interfaces GigabitEthernet 0/1"
+
+  show_running_include:
+    command: "show running-config | include {pattern}"
+    need_parse: true
+    prompts:
+      - "过滤查看配置中包含 {pattern} 的行"
+      - "show running-config | include hostname"
+
+  # ========== IPv6 ==========
+
+  show_ipv6_interface_brief:
+    command: "show ipv6 interface brief"
+    need_parse: true
+    prompts:
+      - "查看 IPv6 接口摘要"
+      - "show ipv6 interface brief"
+
+  show_ipv6_route:
+    command: "show ipv6 route"
+    need_parse: true
+    prompts:
+      - "查看 IPv6 路由表"
+      - "show ipv6 route"
+
+  # ========== Routing / 路由协议 ==========
+
+  show_ip_ospf_neighbor:
+    command: "show ip ospf neighbor"
+    need_parse: true
+    prompts:
+      - "查看 OSPF 邻居状态"
+      - "show ip ospf neighbor"
+
+  show_ip_bgp_summary:
+    command: "show ip bgp summary"
+    need_parse: true
+    prompts:
+      - "查看 BGP 汇总"
+      - "show ip bgp summary"
+
+  show_isis_neighbors:
+    command: "show isis neighbors"
+    need_parse: true
+    prompts:
+      - "查看 IS-IS 邻居"
+      - "show isis neighbors"
+
+  show_ip_rip_database:
+    command: "show ip rip database"
+    need_parse: true
+    prompts:
+      - "查看 RIP 路由数据库"
+      - "show ip rip database"
+
+  # ========== AC / Wireless ==========
+
+  show_ap_all:
+    command: "show ap all"
+    need_parse: true
+    prompts:
+      - "列出所有 AP"
+      - "show ap all"
+
+  show_ap_config_summary:
+    command: "show ap-config summary"
+    need_parse: true
+    prompts:
+      - "查看 AC 配置汇总"
+      - "show ap-config summary"
+
+  # ========== Save & Reset / 保存与重置 ==========
+
+  write_memory:
+    command: "write memory"
+    need_parse: true
+    prompts:
+      - "保存当前配置到启动配置"
+      - "write memory"
+
+  save_config:
+    command: "save"
+    need_parse: true
+    prompts:
+      - "保存配置"
+      - "save"
