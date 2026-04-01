@@ -198,3 +198,28 @@ commands:
     }
   }
 }
+```
+
+## Verified Environment
+
+| Component | Version |
+|-----------|---------|
+| OS | Windows |
+| Python | 3.14 |
+| VS Code | Latest + GitHub Copilot Chat Agent mode |
+| Serial Adapter | CH340 on COM3 |
+| Target Devices | Ruijie RSR20-X, S5310, S5760, WS6008, EG3210 |
+| Serial Settings | 9600 8N1 XON/XOFF |
+
+## Project Structure
+
+```
+NSM-DEBUG_MCP/
+├── src/nsm_debug_mcp/     # MCP server implementation
+│   ├── __init__.py        # Package entry point
+│   └── server.py          # Core server logic
+├── tools/                 # Standalone automation scripts
+├── markdown/              # Documentation (EN/ZH)
+├── .vscode/mcp.json       # VS Code MCP launch config
+├── NSM-DEBUG_MCP.example.yaml  # Unified example configuration
+├── pyproject.toml         # Python package metadata
