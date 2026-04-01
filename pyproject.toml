@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "NSM-DEBUG_MCP"
+version = "0.6.0"
+description = "Visual Studio Code focused MCP server for network system management and serial console debugging"
+readme = "markdown/NSM-DEBUG_MCP_Guide_EN.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "GPT-5.4 Assisted Project" }
+]
+keywords = ["mcp", "network", "serial", "debugging", "vscode"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "pyserial>=3.5",
+    "mcp>=1.1.2",
+    "pyyaml>=6.0.1",
+]
+
+[project.scripts]
+NSM-DEBUG_MCP = "nsm_debug_mcp:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nsm_debug_mcp"]
