@@ -1,220 +1,318 @@
-# NSM-DEBUG_MCP 使用教程
+<h1 align="center">NSM-DEBUG_MCP 用户指南</h1>
 
-## 说明
+<p align="center">
+  <b>串口网络设备 × VS Code × AI —— 零终端窗口切换的网管体验</b>
+</p>
 
-NSM-DEBUG_MCP 基于 MCP2Serial 做了定向改造。
+<p align="center">
+  <a href="NSM-DEBUG_MCP_Guide_EN.md">🌐 English Version</a> ·
+  <a href="https://github.com/QianChang-official/NSM-DEBUG_MCP">📦 GitHub 仓库</a>
+</p>
 
-本仓库的大部分重构、真机适配、VS Code 集成和文档整理工作，由 GPT-5.4 协助完成。
+---
 
-如果有任何内容涉及侵权，请直接联系维护者删除。
+## 目录
 
-## 这个项目现在是什么
+- [简介](#简介)
+- [环境要求](#环境要求)
+- [安装与准备](#安装与准备)
+- [配置设备](#配置设备)
+- [启动服务](#启动服务)
+- [使用工具](#使用工具)
+- [可用工具一览](#可用工具一览)
+- [BootLoader 恢复出厂](#bootloader-恢复出厂)
+- [独立脚本工具](#独立脚本工具)
+- [常见问题排查](#常见问题排查)
+- [安全建议](#安全建议)
 
-NSM-DEBUG_MCP 是一个面向 Windows 和 VS Code 的串口网络设备管理 MCP。
+---
 
-它现在只做三件事：
+## 简介
 
-1. 连接真实串口控制台设备。
-2. 自动完成用户名、密码和特权模式进入。
-3. 把设备 CLI 命令暴露成 VS Code 里的 MCP 工具。
+NSM-DEBUG_MCP 让你在 VS Code Copilot Chat 中，通过自然语言直接管理串口连接的网络设备。
 
-这个版本只保留源码直跑这一个最短路径。
+```
+你在 Copilot Chat 中输入 → "查看路由表"
+     ↓
+NSM-DEBUG_MCP → 串口发送 show ip route → 返回结果到聊天窗口
+```
 
-## 当前仓库结构
+**不需要切换终端，不需要记命令**——对着 AI 说话，设备就执行。
 
-现在保留的核心内容是：
+---
 
-- `.vscode/mcp.json`
-- `src/nsm_debug_mcp/`
-- `NSM-DEBUG_MCP_R1.example.yaml`
-- `NSM-DEBUG_MCP_R2.example.yaml`
-- `markdown/NSM-DEBUG_MCP_Guide_EN.md`
-- `markdown/NSM-DEBUG_MCP_Guide_ZH.md`
+## 环境要求
 
-含义很直接：
+| 项目 | 要求 |
+|------|------|
+| 操作系统 | Windows 10 / 11 / Server |
+| Python | ≥ 3.11 |
+| 编辑器 | VS Code（已安装 GitHub Copilot Chat 扩展） |
+| 串口适配器 | USB 转串口线（CH340 / CP2102 均可） |
+| 目标设备 | 锐捷路由器、交换机、AC、网关等 CLI 设备 |
+| 串口参数 | 默认 9600 8N1（按设备实际情况调整） |
 
-- `.vscode/mcp.json` 负责让 VS Code 直接启动 MCP。
-- `src/nsm_debug_mcp/` 是实际 MCP 服务端代码。
-- 两个 `.example.yaml` 是已经验证过的设备示例配置。
+---
 
-## 已验证环境
+## 安装与准备
 
-实现和联调时实际验证过的环境如下：
+### 第一步：克隆仓库
 
-- Windows
-- Python 3.14
-- VS Code
-- GitHub Copilot Chat + Agent 模式
-- CH340 串口芯片
-- `COM3`
-- `9600 8N1 XON/XOFF`
-- Ruijie 设备主机名 `R1` 和 `R2`
+```bash
+git clone https://github.com/QianChang-official/NSM-DEBUG_MCP.git
+cd NSM-DEBUG_MCP
+```
 
-当前两个 YAML 示例文件，按你的要求，保留了已经验证过的口令和参数。
+### 第二步：安装依赖
 
-## 当前暴露的 MCP 工具
+```bash
+pip install -e .
+```
 
-### `run_cli`
+> 也可以使用虚拟环境：`python -m venv .venv`，然后激活后再安装。
 
-通用命令执行工具。
+### 第三步：复制示例配置
 
-传入 `{command}` 后，直接在设备上执行任意 CLI。
+```bash
+cp NSM-DEBUG_MCP.example.yaml my_device.yaml
+```
 
-常见例子：
+---
 
-- `show ip interface brief`
-- `show version`
-- `show running-config`
+## 配置设备
 
-### `show_version`
-
-固定执行 `show version`。
-
-### `show_ip_interface_brief`
-
-固定执行 `show ip interface brief`。
-
-### `show_running_config`
-
-固定执行 `show running-config`。
-
-## 运行流程
-
-整个运行链路现在是：
-
-1. VS Code 通过 `.vscode/mcp.json` 启动 MCP 服务。
-2. 服务读取 YAML 配置。
-3. 打开串口。
-4. 识别 `Username:` 和 `Password:` 提示。
-5. 自动登录。
-6. 需要时自动进入特权模式。
-7. 如果配置了分页关闭命令，就先执行一次。
-8. 把工具调用翻译成设备 CLI 命令。
-
-在 Windows 上，项目还额外做了 CH340 的 Win32 原始句柄回退。
-
-原因很简单：真机联调时，标准 pyserial 和 .NET 的 `SetCommState` 都在这个设备上失败过，但 Win32 直连能工作。
-
-## YAML 配置结构
-
-每个 YAML 文件分为两部分。
+打开复制好的配置文件（如 `my_device.yaml`），按实际情况填写：
 
 ### 串口参数
 
 ```yaml
 serial:
-  port: COM3
+  port: COM3              # 你的串口号，留空则自动检测
   baud_rate: 9600
   bytesize: 8
   parity: N
   stopbits: 1
-  timeout: 1.0
-  read_timeout: 1.0
-  xonxoff: true
-  rtscts: false
-  dsrdtr: false
-  inter_byte_timeout: 0.1
+  xonxoff: true           # 软件流控（按设备需要开关）
 ```
 
 ### 会话参数
 
 ```yaml
 session:
-  hostname: R2
-  username: admin
-  password: "Test@123456"
-  enable_password: "Test@123456"
-  username_prompt: "Username:"
-  password_prompt: "Password:"
-  enable_command: "enable"
-  user_prompt_suffix: ">"
-  privileged_prompt_suffix: "#"
-  line_ending: "\r\n"
-  command_timeout: 15.0
-  login_timeout: 20.0
+  hostname: R1                        # 设备主机名
+  username: admin                     # 登录用户名
+  password: "your_password"           # ⚠️ 请替换为实际密码
+  enable_password: "your_enable_pwd"  # ⚠️ 请替换为实际特权密码
   paging_disable_command: "terminal length 0"
 ```
 
-这说明它现在不是简单的串口收发器，而是真正面向网络设备 CLI 会话的 MCP。
+> **提示**：`hostname` 用于提示符识别，务必与设备实际主机名一致。
 
-## 直接在 VS Code 里使用
+---
 
-这个路径最适合开发、调试、看日志。
+## 启动服务
 
-当前本地工作区的 `mcp.json` 启动模式是：
+### 方式一：VS Code 内启动（推荐）
 
-```json
-{
-  "servers": {
-    "NSM-DEBUG_MCP": {
-      "type": "stdio",
-      "command": "py",
-      "args": [
-        "-3",
-        "src/nsm_debug_mcp/server.py",
-        "NSM-DEBUG_MCP_R1.example.yaml"
-      ]
-    }
-  }
-}
+1. 用 VS Code 打开 `NSM-DEBUG_MCP` 目录
+2. 按 `Ctrl+Shift+P` → 输入 `MCP: List Servers`
+3. 选择 `NSM-DEBUG_MCP` 并启动
+4. 切换到 Copilot Chat → Agent 模式
+
+> `.vscode/mcp.json` 已预配置好启动参数，默认加载 `NSM-DEBUG_MCP.example.yaml`。
+> 如需使用自定义配置文件，修改 `mcp.json` 中的 `args` 最后一项即可。
+
+### 方式二：PowerShell 一键启动
+
+```powershell
+.\run_nsm_debug_mcp.ps1
+# 或指定配置：
+.\run_nsm_debug_mcp.ps1 -Config my_device.yaml
 ```
 
-含义：
+---
 
-1. VS Code 通过 Windows 自带 `py -3` 拉起 Python。
-2. Python 直接运行源码里的 MCP 服务。
-3. 服务按传入的 YAML 路径加载配置。
+## 使用工具
 
-推荐步骤：
+服务启动后，在 Copilot Chat（Agent 模式）中用自然语言即可调用：
 
-1. 直接打开 `NSM-DEBUG_MCP_03312026_Windows/NSM-DEBUG_MCP/` 这个目录作为独立工作区。
-2. 按需修改 `NSM-DEBUG_MCP_R1.example.yaml` 或 `NSM-DEBUG_MCP_R2.example.yaml`。
-3. 打开命令面板，执行 `MCP: List Servers`。
-4. 启动 `NSM-DEBUG_MCP`。
-5. 打开 Copilot Chat 的 Agent 模式，调用工具。
+| 你说的话 | 实际执行 |
+|----------|----------|
+| "查看设备版本" | `show version` |
+| "查看路由表" | `show ip route` |
+| "查看接口状态" | `show ip interface brief` |
+| "查看当前配置" | `show running-config` |
+| "查看 VLAN 信息" | `show vlan` |
+| "查看 OSPF 邻居" | `show ip ospf neighbor` |
+| "查看 AP 列表" | `show ap all` |
+| "保存配置" | `write memory` |
+| "在设备上执行 show clock" | `show clock`（通过 `run_cli`） |
 
-## 在 Chat 里怎么调用
+---
 
-可以直接用这些提示词：
+## 可用工具一览
 
-```text
-查看 R2 的版本信息
-查看 R2 接口摘要
-在 R2 上执行 show ip route
-在 R2 上执行 show running-config
+<details>
+<summary><b>📋 常规运维（15 个）</b></summary>
+
+| 工具名 | 执行命令 | 用途 |
+|--------|----------|------|
+| `run_cli` | `{command}` | 执行任意 CLI 命令 |
+| `show_version` | `show version` | 查看设备版本信息 |
+| `show_running_config` | `show running-config` | 查看当前运行配置 |
+| `show_startup_config` | `show startup-config` | 查看启动配置 |
+| `show_ip_interface_brief` | `show ip interface brief` | 查看接口 IP 摘要 |
+| `show_ip_route` | `show ip route` | 查看 IPv4 路由表 |
+| `show_vlan` | `show vlan` | 查看 VLAN 信息 |
+| `show_mac_address_table` | `show mac-address-table` | 查看 MAC 地址表 |
+| `show_lldp_neighbors` | `show lldp neighbors` | 查看 LLDP 邻居 |
+| `show_lldp_neighbors_detail` | `show lldp neighbors detail` | 查看 LLDP 邻居详情 |
+| `show_ip_dhcp_binding` | `show ip dhcp binding` | 查看 DHCP 地址绑定 |
+| `show_privilege` | `show privilege` | 查看当前权限等级 |
+| `show_flash` | `dir flash:` | 查看 Flash 存储内容 |
+| `show_interfaces` | `show interfaces {interface}` | 查看指定接口详情 |
+| `show_running_include` | `show running-config \| include {pattern}` | 过滤查看配置 |
+
+</details>
+
+<details>
+<summary><b>🌐 IPv6（2 个）</b></summary>
+
+| 工具名 | 执行命令 |
+|--------|----------|
+| `show_ipv6_interface_brief` | `show ipv6 interface brief` |
+| `show_ipv6_route` | `show ipv6 route` |
+
+</details>
+
+<details>
+<summary><b>🔀 路由协议（4 个）</b></summary>
+
+| 工具名 | 执行命令 |
+|--------|----------|
+| `show_ip_ospf_neighbor` | `show ip ospf neighbor` |
+| `show_ip_bgp_summary` | `show ip bgp summary` |
+| `show_isis_neighbors` | `show isis neighbors` |
+| `show_ip_rip_database` | `show ip rip database` |
+
+</details>
+
+<details>
+<summary><b>📡 无线 AC（2 个）</b></summary>
+
+| 工具名 | 执行命令 |
+|--------|----------|
+| `show_ap_all` | `show ap all` |
+| `show_ap_config_summary` | `show ap-config summary` |
+
+</details>
+
+<details>
+<summary><b>💾 保存与重置（2 个）</b></summary>
+
+| 工具名 | 执行命令 |
+|--------|----------|
+| `write_memory` | `write memory` |
+| `save_config` | `save` |
+
+</details>
+
+<details>
+<summary><b>🔧 内置工具（无需 YAML 配置）</b></summary>
+
+| 工具名 | 用途 |
+|--------|------|
+| `send_control_keys` | 发送控制键（Ctrl+C / Ctrl+B / Ctrl+Q 等） |
+| `auto_factory_reset` | 自动化 BootLoader 恢复出厂流程 |
+
+**支持的恢复配置：** `router` · `switch` · `ws6008` · `gateway`
+
+</details>
+
+---
+
+## BootLoader 恢复出厂
+
+对于需要恢复出厂设置的设备，NSM-DEBUG_MCP 内置了自动化 BootLoader 重置流程。
+
+**支持设备类型和操作：**
+
+| 设备类型 | 操作 |
+|----------|------|
+| 路由器（RSR20-X） | Ctrl+C 进入 BootLoader → 清除配置 → 重启 |
+| 交换机（S5310/S5760） | Ctrl+B 进入 BootLoader → 清除配置 → 重启 |
+| 无线控制器（WS6008） | Ctrl+B 进入 BootLoader → 清除配置 → 重启 |
+| 网关（EG3210） | Ctrl+Q 进入恢复模式 → 恢复出厂 |
+
+在 Copilot Chat 中说 **"对设备执行恢复出厂"** 即可触发。
+
+---
+
+## 独立脚本工具
+
+`tools/` 目录提供不依赖 VS Code 的独立 Python 脚本：
+
+| 脚本 | 用途 |
+|------|------|
+| `selftest_list_tools.py` | 加载配置并打印所有注册工具 |
+| `run_r1_ctrlc_ctrlq_factory_reset.py` | 全自动路由器恢复出厂（含日志和验证） |
+
+```bash
+# 工具自检
+python tools/selftest_list_tools.py
+
+# 自动恢复出厂（输出日志到 txt/ 目录）
+python tools/run_r1_ctrlc_ctrlq_factory_reset.py
 ```
 
-## 已验证结果
+---
 
-真机已经确认这些链路有效：
+## 常见问题排查
 
-1. `COM3` 打开成功。
-2. 用户名密码自动登录成功。
-3. 特权模式自动进入成功。
-4. `show version` 执行成功。
-5. `show ip interface brief` 执行成功。
-6. `show running-config` 执行成功。
-7. 从 `R1` 切到 `R2` 继续工作成功。
+<details>
+<summary><b>串口打不开 / 提示 "Access Denied"</b></summary>
 
-另外也确认了几件事：
+1. 确认串口线已连接，设备管理器中能看到 COMx
+2. 确认没有其他程序（SecureCRT、PuTTY）占用该端口
+3. 以管理员身份运行 VS Code
 
-1. 自动登录后再执行 `enable` 没意义，因为已经在特权模式。
-2. 当前验证设备上，测试时的 `configure terminal` 形式不被接受。
-3. 提示符识别已经覆盖了 `R1(config)#` 这种配置模式提示符。
+</details>
 
-## 安全说明
+<details>
+<summary><b>登录超时 / 停在 "Waiting for login prompt"</b></summary>
 
-当前两个示例 YAML 按你的要求保留了真实验证过的口令。
+1. 检查 YAML 中 `username_prompt` 和 `password_prompt` 是否与设备实际提示一致
+2. 检查波特率是否正确（常见：9600 或 115200）
+3. 尝试手动用串口工具（PuTTY/SecureCRT）连接设备确认可用
 
-如果这个仓库要公开发布，建议先改掉。
+</details>
 
-## 最后定位
+<details>
+<summary><b>CH340 串口连接失败</b></summary>
 
-NSM-DEBUG_MCP 现在是一个精简、面向 VS Code、优先 Windows 兼容性的串口网络设备管理调试 MCP。
+NSM-DEBUG_MCP 内置了 Win32 原生接口回退方案。如 pyserial 标准模式失败，服务会自动切换到 Win32 API 直连，无需手动干预。
 
-它的职责非常明确：
+</details>
 
-1. 在 VS Code 里启动。
-2. 连到真实路由器或交换机串口。
-3. 自动登录。
-4. 通过 MCP 工具暴露常用管理命令。
+<details>
+<summary><b>命令返回为空</b></summary>
+
+1. 检查 `hostname` 是否与设备主机名完全一致（用于提示符匹配）
+2. 增大 `command_timeout` 值（某些命令输出较慢）
+3. 确认已进入特权模式（`show_privilege` 查看当前等级）
+
+</details>
+
+---
+
+## 安全建议
+
+- **不要将真实密码提交到公共仓库**。示例配置中的密码字段是占位符，使用前务必替换
+- 建议将包含真实密码的配置文件加入 `.gitignore`
+- 生产环境建议结合 TACACS+ / RADIUS 统一认证
+
+---
+
+<p align="center">
+  <sub>📖 <a href="NSM-DEBUG_MCP_Guide_EN.md">English Version</a> · 遇到问题？<a href="https://github.com/QianChang-official/NSM-DEBUG_MCP/issues">提交 Issue</a></sub>
+</p>
