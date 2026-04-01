@@ -233,3 +233,11 @@ NSM-DEBUG_MCP/
 - Tested against Ruijie network equipment in production lab environment
 
 ## License
+
+[MIT](LICENSE) — free for personal and commercial use.
+
+---
+
+<p align="center">
+  <sub>If this project helped you, consider giving it a ⭐</sub>
+</p>
