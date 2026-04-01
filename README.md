@@ -70,3 +70,72 @@ cp NSM-DEBUG_MCP.example.yaml my_device.yaml
 | Tool | Command | Description |
 |------|---------|-------------|
 | `run_cli` | `{command}` | Execute any CLI command |
+| `show_version` | `show version` | Device version info |
+| `show_running_config` | `show running-config` | Running configuration |
+| `show_startup_config` | `show startup-config` | Startup configuration |
+| `show_ip_interface_brief` | `show ip interface brief` | Interface summary |
+| `show_ip_route` | `show ip route` | IPv4 routing table |
+| `show_vlan` | `show vlan` | VLAN configuration |
+| `show_mac_address_table` | `show mac-address-table` | MAC address table |
+| `show_lldp_neighbors` | `show lldp neighbors` | LLDP neighbors |
+| `show_lldp_neighbors_detail` | `show lldp neighbors detail` | LLDP neighbor details |
+| `show_ip_dhcp_binding` | `show ip dhcp binding` | DHCP lease table |
+| `show_privilege` | `show privilege` | Current privilege level |
+| `show_flash` | `dir flash:` | Flash directory |
+| `show_interfaces` | `show interfaces {interface}` | Interface details |
+| `show_running_include` | `show running-config \| include {pattern}` | Filtered config |
+
+</details>
+
+<details>
+<summary><b>IPv6</b></summary>
+
+| Tool | Command |
+|------|---------|
+| `show_ipv6_interface_brief` | `show ipv6 interface brief` |
+| `show_ipv6_route` | `show ipv6 route` |
+
+</details>
+
+<details>
+<summary><b>Routing Protocols</b></summary>
+
+| Tool | Command |
+|------|---------|
+| `show_ip_ospf_neighbor` | `show ip ospf neighbor` |
+| `show_ip_bgp_summary` | `show ip bgp summary` |
+| `show_isis_neighbors` | `show isis neighbors` |
+| `show_ip_rip_database` | `show ip rip database` |
+
+</details>
+
+<details>
+<summary><b>AC / Wireless</b></summary>
+
+| Tool | Command |
+|------|---------|
+| `show_ap_all` | `show ap all` |
+| `show_ap_config_summary` | `show ap-config summary` |
+
+</details>
+
+<details>
+<summary><b>Save & Reset</b></summary>
+
+| Tool | Command |
+|------|---------|
+| `write_memory` | `write memory` |
+| `save_config` | `save` |
+
+</details>
+
+<details>
+<summary><b>Built-in Tools (no YAML config needed)</b></summary>
+
+| Tool | Description |
+|------|-------------|
+| `send_control_keys` | Send raw control keys (Ctrl+C, Ctrl+B, Ctrl+Q…) |
+| `auto_factory_reset` | Automated BootLoader factory reset workflow |
+
+**Supported reset profiles:** `router` · `switch` · `ws6008` · `gateway`
+
