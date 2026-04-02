@@ -44,23 +44,45 @@ Device output → Copilot Chat
 | **Win32 Fallback** | CH340 USB-serial workaround via native Win32 API |
 | **YAML Profiles** | One config file per device — swap targets in seconds |
 
-## Quick Start
+## 5-Minute Setup (Recommended)
 
-```bash
+This repository is Windows-first. The fastest path is:
+
+1. Clone the repo.
+2. Create a local `.venv` in the repo root.
+3. Install the package into that `.venv`.
+4. Open the `NSM-DEBUG_MCP` folder itself in VS Code.
+5. Run the self-test before asking VS Code to start the MCP server.
+
+```powershell
 # 1. Clone
 git clone https://github.com/QianChang-official/NSM-DEBUG_MCP.git
 cd NSM-DEBUG_MCP
 
-# 2. Install dependencies
+# 2. Create and activate a repo-local virtual environment
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# 3. Install dependencies
+python -m pip install --upgrade pip
 pip install -e .
 
-# 3. Copy and edit the example config
-cp NSM-DEBUG_MCP.example.yaml my_device.yaml
+# 4. Copy and edit the example config
+Copy-Item .\NSM-DEBUG_MCP.example.yaml .\my_device.yaml
 # Edit my_device.yaml: set hostname, credentials, COM port
 
-# 4. Open in VS Code → MCP: List Servers → Start NSM-DEBUG_MCP
-# 5. Open Copilot Chat (Agent mode) → invoke tools
+# 5. Verify the server can load and register tools
+python .\tools\selftest_list_tools.py
 ```
+
+If the self-test prints tool names such as `run_cli`, `show_version`, and `send_control_keys`, the install is ready.
+
+Then:
+
+1. Open the `NSM-DEBUG_MCP` folder directly in VS Code.
+2. Run `Developer: Reload Window` once.
+3. Open Copilot Chat in Agent mode.
+4. Start `NSM-DEBUG_MCP` from the MCP server list if it does not auto-start.
 
 ## Available MCP Tools
 
@@ -158,6 +180,8 @@ python tools/selftest_list_tools.py
 python tools/run_r1_ctrlc_ctrlq_factory_reset.py
 ```
 
+The self-test is the quickest way to separate Python/install problems from serial/YAML problems. Run it first.
+
 ## Configuration
 
 A single YAML file controls everything. See [`NSM-DEBUG_MCP.example.yaml`](NSM-DEBUG_MCP.example.yaml) for the full reference.
@@ -186,19 +210,51 @@ commands:
 
 ## VS Code Integration
 
-`.vscode/mcp.json` starts the server directly:
+The repository already includes `.vscode/mcp.json`.
+
+Important:
+
+- It assumes you created `.venv` in the repository root.
+- It only works automatically when you open the `NSM-DEBUG_MCP` folder itself as the VS Code workspace.
+- If you open a parent folder instead, VS Code will use the parent workspace's `.vscode/mcp.json`, not this repository's.
+
+Equivalent MCP config:
 
 ```json
 {
   "servers": {
     "NSM-DEBUG_MCP": {
       "type": "stdio",
-      "command": ".venv/Scripts/python.exe",
-      "args": ["src/nsm_debug_mcp/server.py", "NSM-DEBUG_MCP.example.yaml"]
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "${workspaceFolder}\\src\\nsm_debug_mcp\\server.py",
+        "${workspaceFolder}\\NSM-DEBUG_MCP.example.yaml"
+      ]
     }
   }
 }
 ```
+
+If you want to integrate this server into an existing multi-folder workspace, copy the `NSM-DEBUG_MCP` server block into the parent workspace's `.vscode/mcp.json` and adjust the paths to your clone location.
+
+## Troubleshooting
+
+### MCP server does not appear in VS Code
+
+- Confirm you opened the `NSM-DEBUG_MCP` folder itself, not only its parent folder.
+- Confirm `.venv\Scripts\python.exe` exists in the repo root.
+- Run `python .\tools\selftest_list_tools.py` first. If that fails, fix Python or package installation before debugging VS Code.
+
+### MCP server exists but will not start
+
+- Re-run `Developer: Reload Window` after creating `.venv` and installing dependencies.
+- Check whether `my_device.yaml` or `NSM-DEBUG_MCP.example.yaml` contains the correct COM port and prompt settings.
+- If you use CH340 serial adapters, verify the COM port exists in Windows Device Manager before debugging MCP.
+
+### Installing from an existing PowerShell session fails
+
+- Run `Set-ExecutionPolicy -Scope Process RemoteSigned` if PowerShell blocks `.venv\Scripts\Activate.ps1`.
+- If `py -3` is unavailable, replace it with a working Python 3.11+ executable.
 
 ## Verified Environment
 
