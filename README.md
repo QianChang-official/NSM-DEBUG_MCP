@@ -156,6 +156,8 @@ Then:
 
 | Tool | Description |
 |------|-------------|
+| `list_serial_ports` | List Windows-visible COM ports without opening them |
+| `connection_status` | Show server, serial, and login-session status with secrets redacted |
 | `send_control_keys` | Send raw control keys (Ctrl+C, Ctrl+B, Ctrl+Q…) |
 | `auto_factory_reset` | Automated BootLoader factory reset workflow |
 

@@ -17,8 +17,9 @@ def main():
     s.config = s.Config.load(CONFIG_PATH)
     s.serial_connection.refresh_config()
     tools = asyncio.run(s.handle_list_tools())
+    print(f"Loaded {len(tools)} tools:")
     for tool in tools:
-        print(tool.name)
+        print(f"- {tool.name}")
 
 
 if __name__ == "__main__":

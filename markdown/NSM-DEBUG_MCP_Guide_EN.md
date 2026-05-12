@@ -222,6 +222,8 @@ Once the server is running, use natural language in Copilot Chat (Agent mode):
 
 | Tool | Purpose |
 |------|---------|
+| `list_serial_ports` | List Windows-visible COM ports without opening a serial connection |
+| `connection_status` | Show server, serial, and login-session status with secrets redacted |
 | `send_control_keys` | Send control keys (Ctrl+C / Ctrl+B / Ctrl+Q, etc.) |
 | `auto_factory_reset` | Automated BootLoader factory reset workflow |
 

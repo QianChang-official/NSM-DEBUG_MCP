@@ -75,7 +75,9 @@ session:
 #   save_config                 save (alias)
 #
 # --- tools/ Script Equivalents / 工具脚本等效命令 ---------------
-#   selftest_list_tools         (MCP built-in) lists all tools
+#   list_serial_ports           (MCP built-in) list detected COM ports
+#   connection_status           (MCP built-in) show safe runtime status
+#   selftest_list_tools         (standalone script) lists all tools
 #   auto_factory_reset          (MCP built-in) bootloader reset
 #   send_control_keys           (MCP built-in) raw key injection
 #

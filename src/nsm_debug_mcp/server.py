@@ -374,6 +374,16 @@ def _find_first_pattern(text: str, patterns: List[str]) -> Optional[str]:
     return None
 
 
+def _format_bool(value: bool) -> str:
+    return "yes" if value else "no"
+
+
+def _format_optional(value: Any) -> str:
+    if value is None or value == "":
+        return "(not set)"
+    return str(value)
+
+
 def _control_token_to_bytes(token: str) -> bytes:
     normalized = token.strip().upper()
     if not normalized:
@@ -806,6 +816,74 @@ class SerialConnection:
     def _ensure_raw_connection(self) -> None:
         if not self.is_loopback and (not self.serial_port or not self.serial_port.is_open):
             self.connect()
+
+    def list_serial_ports(self) -> List[Dict[str, str]]:
+        """Return visible serial ports without opening them."""
+        ports: List[Dict[str, str]] = []
+        for port in serial.tools.list_ports.comports():
+            ports.append({
+                "device": port.device or "",
+                "description": port.description or "",
+                "hwid": port.hwid or "",
+                "manufacturer": port.manufacturer or "",
+                "product": port.product or "",
+            })
+        return ports
+
+    def connection_status(self) -> Dict[str, Any]:
+        """Return a safe runtime status snapshot."""
+        port_name = None
+        backend = "none"
+        is_open = False
+
+        if self.serial_port:
+            port_name = getattr(self.serial_port, "name", None) or getattr(self.serial_port, "port", None)
+            is_open = bool(getattr(self.serial_port, "is_open", False))
+            backend = type(self.serial_port).__name__
+        elif self.is_loopback:
+            port_name = "LOOP_BACK"
+            is_open = True
+            backend = "loopback"
+
+        return {
+            "project": PROJECT_DISPLAY_NAME,
+            "version": VERSION,
+            "configured_port": config.port,
+            "active_port": port_name,
+            "backend": backend,
+            "is_open": is_open,
+            "loopback": self.is_loopback,
+            "session_enabled": self._session_enabled(),
+            "session_ready": self.session_ready,
+            "privileged_mode": self.privileged_mode,
+            "serial": {
+                "baud_rate": config.baud_rate,
+                "bytesize": config.bytesize,
+                "parity": config.parity,
+                "stopbits": config.stopbits,
+                "timeout": config.timeout,
+                "read_timeout": config.read_timeout,
+                "xonxoff": config.xonxoff,
+                "rtscts": config.rtscts,
+                "dsrdtr": config.dsrdtr,
+                "inter_byte_timeout": config.inter_byte_timeout,
+            },
+            "session": {
+                "hostname": config.hostname,
+                "username_configured": bool(config.username),
+                "password_configured": bool(config.password),
+                "enable_password_configured": bool(config.enable_password),
+                "username_prompt": config.username_prompt,
+                "password_prompt": config.password_prompt,
+                "enable_command": config.enable_command,
+                "user_prompt_suffix": config.user_prompt_suffix,
+                "privileged_prompt_suffix": config.privileged_prompt_suffix,
+                "command_timeout": config.command_timeout,
+                "login_timeout": config.login_timeout,
+                "paging_disable_command": config.paging_disable_command,
+            },
+            "configured_command_count": len(config.commands),
+        }
 
     def _response_text_from_spec(self, spec: Any, transcript: str) -> Optional[str]:
         if isinstance(spec, str):
@@ -1432,6 +1510,32 @@ async def handle_list_tools() -> list[types.Tool]:
     tools = []
 
     tools.append(types.Tool(
+        name="list_serial_ports",
+        description="List serial ports currently visible to Windows without opening a connection.",
+        inputSchema={
+            "type": "object",
+            "properties": {},
+        },
+        prompts=[
+            "列出当前 Windows 可见的串口",
+            "查看有哪些 COM 口可用于 NSM-DEBUG_MCP",
+        ]
+    ))
+
+    tools.append(types.Tool(
+        name="connection_status",
+        description="Show the current MCP server, serial, and login-session status without exposing passwords.",
+        inputSchema={
+            "type": "object",
+            "properties": {},
+        },
+        prompts=[
+            "查看 NSM-DEBUG_MCP 当前连接状态",
+            "检查当前串口配置和登录状态",
+        ]
+    ))
+
+    tools.append(types.Tool(
         name="send_control_keys",
         description="Send raw control keys or raw bytes over the serial console, such as Ctrl+C, Ctrl+B, Ctrl+Q.",
         inputSchema={
@@ -1512,6 +1616,63 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
     try:
         if arguments is None:
             arguments = {}
+
+        if name == "list_serial_ports":
+            ports = serial_connection.list_serial_ports()
+            if not ports:
+                text = (
+                    f"[{PROJECT_DISPLAY_NAME} v{VERSION}] No serial ports detected.\n"
+                    "Check Windows Device Manager, USB-serial driver installation, and cable connection."
+                )
+                return [types.TextContent(type="text", text=text)]
+
+            lines = [f"[{PROJECT_DISPLAY_NAME} v{VERSION}] Serial ports detected: {len(ports)}"]
+            for index, port in enumerate(ports, start=1):
+                details = []
+                if port["description"]:
+                    details.append(port["description"])
+                if port["manufacturer"]:
+                    details.append(f"manufacturer={port['manufacturer']}")
+                if port["product"]:
+                    details.append(f"product={port['product']}")
+                if port["hwid"]:
+                    details.append(f"hwid={port['hwid']}")
+                suffix = " | " + "; ".join(details) if details else ""
+                lines.append(f"{index}. {port['device']}{suffix}")
+
+            return [types.TextContent(type="text", text="\n".join(lines))]
+
+        if name == "connection_status":
+            status = serial_connection.connection_status()
+            serial_status = status["serial"]
+            session_status = status["session"]
+            text = (
+                f"[{status['project']} v{status['version']}] Connection status\n"
+                f"Configured port: {_format_optional(status['configured_port'])}\n"
+                f"Active port: {_format_optional(status['active_port'])}\n"
+                f"Backend: {status['backend']}\n"
+                f"Open: {_format_bool(status['is_open'])}\n"
+                f"Loopback: {_format_bool(status['loopback'])}\n"
+                f"Session enabled: {_format_bool(status['session_enabled'])}\n"
+                f"Session ready: {_format_bool(status['session_ready'])}\n"
+                f"Privileged mode: {_format_bool(status['privileged_mode'])}\n"
+                f"Commands configured: {status['configured_command_count']}\n\n"
+                "Serial settings\n"
+                f"- Baud: {serial_status['baud_rate']}\n"
+                f"- Frame: {serial_status['bytesize']}{serial_status['parity']}{serial_status['stopbits']}\n"
+                f"- Timeout/read timeout: {serial_status['timeout']}s / {serial_status['read_timeout']}s\n"
+                f"- Flow control: xonxoff={_format_bool(serial_status['xonxoff'])}, "
+                f"rtscts={_format_bool(serial_status['rtscts'])}, dsrdtr={_format_bool(serial_status['dsrdtr'])}\n\n"
+                "Session settings\n"
+                f"- Hostname: {_format_optional(session_status['hostname'])}\n"
+                f"- Username configured: {_format_bool(session_status['username_configured'])}\n"
+                f"- Password configured: {_format_bool(session_status['password_configured'])}\n"
+                f"- Enable password configured: {_format_bool(session_status['enable_password_configured'])}\n"
+                f"- Prompt suffixes: user={session_status['user_prompt_suffix']}, "
+                f"privileged={session_status['privileged_prompt_suffix']}\n"
+                f"- Paging disable command: {_format_optional(session_status['paging_disable_command'])}"
+            )
+            return [types.TextContent(type="text", text=text)]
 
         if name == "send_control_keys":
             result = serial_connection.send_control_keys(

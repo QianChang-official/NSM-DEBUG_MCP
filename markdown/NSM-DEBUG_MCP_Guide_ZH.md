@@ -222,6 +222,8 @@ session:
 
 | 工具名 | 用途 |
 |--------|------|
+| `list_serial_ports` | 列出 Windows 当前可见的 COM 口，不打开串口 |
+| `connection_status` | 查看服务、串口和登录会话状态，密码只显示是否已配置 |
 | `send_control_keys` | 发送控制键（Ctrl+C / Ctrl+B / Ctrl+Q 等） |
 | `auto_factory_reset` | 自动化 BootLoader 恢复出厂流程 |
 

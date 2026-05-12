@@ -16,6 +16,7 @@ Release/
 .coverage
 htmlcov/
 .idea/
+.vscode/settings.json
 bin/
 *.swp
 *.swo
@@ -26,3 +27,9 @@ desktop.ini
 
 # Debug logs (keep local only)
 txt/
+
+# Local device configs may contain real credentials
+my_device.yaml
+*.local.yaml
+NSM-DEBUG_MCP_*.yaml
+!NSM-DEBUG_MCP.example.yaml
